@@ -1,0 +1,40 @@
+﻿@model BookStore_ASP.ViewModel.Author.CreateAuthorViewModel
+
+
+<h1>Create author</h1>
+
+<form asp-action="Create" method="post">
+
+    <label>First name of author:</label>
+    <input asp-for="FirstName" />
+    <span asp-validation-for="FirstName"></span>
+
+    <br />
+    <br />
+
+    <label>Last name of author:</label>
+    <input asp-for="LastName" />
+    <span asp-validation-for="LastName"></span>
+
+    <br />
+    <br />
+
+    <label>Country:</label>
+    <input asp-for="Country" />
+    <span asp-validation-for="Country"></span>
+
+    <br />
+    <br />
+
+   
+    <button type="submit">Add</button>
+
+</form>
+<a asp-action="Index">Back to list</a>
+
+
+
+
+<br />
+
+<a href="/Authors/Index">Shall all authors</a>
