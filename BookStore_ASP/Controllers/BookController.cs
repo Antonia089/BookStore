@@ -146,8 +146,7 @@ namespace BookStore_ASP.Controllers
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(  int id,  UpdateBookViewModel model)
+        public async Task<IActionResult> Edit(int id,  UpdateBookViewModel model)
         {
             if (id != model.Id)
             {
