@@ -1,4 +1,6 @@
-﻿namespace BookStore_ASP.ViewModel.Book
+﻿using BookStore_Data.Entities;
+
+namespace BookStore_ASP.ViewModel.Book
 {
     public class DetailesBookViewModel
     {
@@ -14,5 +16,6 @@
 
         public int NumberOfPages { get; set; }
         public string AuthorName { get; set; }
+        public List<string> Clients { get; set; } = new List<string>();
     }
 }

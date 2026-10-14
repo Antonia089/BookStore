@@ -34,7 +34,7 @@ namespace BookStore_ASP
 
             app.MapControllerRoute(
                 name: "default",
-                pattern: "{controller=Author}/{action=Index}/{id?}");
+                pattern: "{controller=Client}/{action=Index}/{id?}");
 
             app.Run();
         }

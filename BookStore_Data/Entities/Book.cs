@@ -30,6 +30,7 @@ namespace BookStore_Data.Entities
         public int NumberOfPages { get; set; }
         public int AuthorId { get; set; }
         public Author Author { get; set; }
+        public ICollection<Purchases> Purchases { get; set; } = new List<Purchases>();
 
     }
 }

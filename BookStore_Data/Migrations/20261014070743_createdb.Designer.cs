@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BookStore_Data.Migrations
 {
     [DbContext(typeof(BookStoreDataDbContext))]
-    [Migration("20260928094035_createdb")]
+    [Migration("20261014070743_createdb")]
     partial class createdb
     {
         /// <inheritdoc />
@@ -96,6 +96,56 @@ namespace BookStore_Data.Migrations
                     b.ToTable("Books");
                 });
 
+            modelBuilder.Entity("BookStore_Data.Entities.Client", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("FirstName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("LastName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("PhoneNumber")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Clients");
+                });
+
+            modelBuilder.Entity("BookStore_Data.Entities.Purchases", b =>
+                {
+                    b.Property<int>("ClientId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("BookId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("PurchaseDate")
+                        .HasColumnType("datetime");
+
+                    b.HasKey("ClientId", "BookId");
+
+                    b.HasIndex("BookId");
+
+                    b.ToTable("Purchases");
+                });
+
             modelBuilder.Entity("BookStore_Data.Entities.Book", b =>
                 {
                     b.HasOne("BookStore_Data.Entities.Author", "Author")
@@ -107,9 +157,38 @@ namespace BookStore_Data.Migrations
                     b.Navigation("Author");
                 });
 
+            modelBuilder.Entity("BookStore_Data.Entities.Purchases", b =>
+                {
+                    b.HasOne("BookStore_Data.Entities.Book", "Book")
+                        .WithMany("Purchases")
+                        .HasForeignKey("BookId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("BookStore_Data.Entities.Client", "Client")
+                        .WithMany("Purchases")
+                        .HasForeignKey("ClientId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Book");
+
+                    b.Navigation("Client");
+                });
+
             modelBuilder.Entity("BookStore_Data.Entities.Author", b =>
                 {
                     b.Navigation("Books");
+                });
+
+            modelBuilder.Entity("BookStore_Data.Entities.Book", b =>
+                {
+                    b.Navigation("Purchases");
+                });
+
+            modelBuilder.Entity("BookStore_Data.Entities.Client", b =>
+                {
+                    b.Navigation("Purchases");
                 });
 #pragma warning restore 612, 618
         }

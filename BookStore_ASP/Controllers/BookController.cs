@@ -43,6 +43,8 @@ namespace BookStore_ASP.Controllers
         {
             var b = await context.Books
                 .Include(d => d.Author)
+                .Include(d => d.Purchases)
+                .ThenInclude(p=>p.Client)
                 .FirstOrDefaultAsync(d => d.Id == id);
 
             if (b == null)
@@ -57,7 +59,8 @@ namespace BookStore_ASP.Controllers
                 Price=b.Price,
                 NumberOfPages=b.NumberOfPages,
                 YearOfPublication=b.YearOfPublication,
-                AuthorName=b.Author.FirstName + " " + b.Author.LastName
+                AuthorName=b.Author.FirstName + " " + b.Author.LastName,
+                Clients=b.Purchases.Select(p => p.Client.FirstName + " " + p.Client.LastName).ToList()
             };
 
             return View(model);
