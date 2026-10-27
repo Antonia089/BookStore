@@ -33,16 +33,17 @@ namespace BookStore_ASP.Controllers
                     Id = a.Id,
                    Title = a.Title,
                      Genres = a.Genres,
-                     AuthorName = a.Author.FirstName + " " + a.Author.LastName
+                     AuthorName = a.Author.FullName
                 });
             }
 
             return View(model);
         }
 
-        public async Task<IActionResult> Details(int id)
+       
+            public async Task<IActionResult> Details(int id)
         {
-            var b = await bookService.GetBookByIdAsync(id);
+            var b = await bookService.GetBookDetailsAsync(id);
 
             if (b == null)
             {
@@ -51,61 +52,72 @@ namespace BookStore_ASP.Controllers
 
             var model = new DetailesBookViewModel
             {
-                Title=b.Title,
-                Genres=b.Genres,
-                Price=b.Price,
-                NumberOfPages=b.NumberOfPages,
-                YearOfPublication=b.YearOfPublication,
-                AuthorName=b.Author.FirstName + " " + b.Author.LastName,
-                Clients=b.Purchases.Select(p => p.Client.FirstName + " " + p.Client.LastName).ToList()
+                Title = b.Title,
+                Genres = b.Genres,
+                Price = b.Price,
+                NumberOfPages = b.NumberOfPages,
+                YearOfPublication = b.YearOfPublication,
+                AuthorName = b.Author.FullName,
+                Clients = b.Purchases.Select(p => p.Client.FirstName + " " + p.Client.LastName).ToList()
             };
 
             return View(model);
+
         }
-        [HttpGet]
-        public async Task<IActionResult> Create()
-        {
-            var model = new CreateBookViewModel();
-            var author=await authorService.GetAllAuthorsAsync();
+        
+        
+          
+            
+            [HttpGet]
+            public async Task<IActionResult> Create()
+            {
+                var authors = await authorService.GetAllAuthorsAsync();
+
+                if (authors == null)
+                {
+                    throw new Exception("Authors list is NULL!");
+                }
+
+                var model = new CreateBookViewModel();
+
             ViewBag.Authors = new SelectList(
-        author,
-         "Id",
-         "FullName");
+            authors,
+             "Id",
+             "FullName"
+            );
 
             return View(model);
-        }
+            }
+        
+        
+
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(CreateBookViewModel model)
         {
-            if (ModelState.IsValid)
-            { 
-                var b = new Book
-                {
-                    Title = model.Title,
-                    Genres = model.Genres,
-                    Price = model.Price,
-                    NumberOfPages = model.NumberOfPages,
-                    YearOfPublication = model.YearOfPublication,
-                    AuthorId = model.AuthorId
-                };
-
-              await bookService.AddBookAsync(b);
-
-                return RedirectToAction(nameof(Index));
+            if (!ModelState.IsValid)
+            {
+                await LoadAuthors();
+                return View(model);
             }
 
-            var authorlist = await authorService.GetAllAuthorsAsync();
-            ViewBag.Authors = new SelectList(
-        authorlist,
-         "Id",
-         "FullName").ToList();
+            var book = new Book
+            {
+                Title = model.Title,
+                Genres = model.Genres,
+                Price = model.Price,
+                NumberOfPages = model.NumberOfPages,
+                YearOfPublication = model.YearOfPublication,
+                AuthorId = model.AuthorId
+            };
 
+            await bookService.AddBookAsync(book);
 
-            return View(model);
+            return RedirectToAction(nameof(Index));
         }
 
-       
+
         public async Task<IActionResult> Edit(int id)
         {
             var book = await bookService.GetBookByIdAsync(id);
@@ -134,39 +146,38 @@ namespace BookStore_ASP.Controllers
         
         }
 
-        [HttpPost]
-        public async Task<IActionResult> Edit(int id,  UpdateBookViewModel model)
-        {
-            if (id != model.Id)
+          [HttpPost]
+            [ValidateAntiForgeryToken]
+            public async Task<IActionResult> Edit(
+     int id,
+     UpdateBookViewModel model)
             {
-                return NotFound();
+                if (id != model.Id)
+                    return NotFound();
+
+                if (!ModelState.IsValid)
+                {
+                    await LoadAuthors();
+                    return View(model);
+                }
+
+                var book = await bookService.GetBookByIdAsync(id);
+
+                if (book == null)
+                    return NotFound();
+
+                book.Title = model.Title;
+                book.Genres = model.Genres;
+                book.Price = model.Price;
+                book.NumberOfPages = model.NumberOfPages;
+                book.YearOfPublication = model.YearOfPublication;
+                book.AuthorId = model.AuthorId;
+
+                await bookService.UpdateBookAsync(book);
+
+                return RedirectToAction(nameof(Index));
             }
-
-            if (!ModelState.IsValid)
-            {
-                await LoadAuthors();
-
-                return View(model);
-            }
-
-            var book = await bookService.GetBookByIdAsync(id);
-
-            if (book == null)
-            {
-                return NotFound();
-            }
-
-            book.Title = model.Title;
-            book.Genres = model.Genres;
-            book.Price = model.Price;
-            book.NumberOfPages = model.NumberOfPages;
-            book.YearOfPublication = model.YearOfPublication;
-            book.AuthorId = model.AuthorId;
-
-            await bookService.UpdateBookAsync(book);
-
-            return RedirectToAction(nameof(Index));
-        }
+        
 
         private async Task LoadAuthors()
         {
@@ -201,7 +212,7 @@ namespace BookStore_ASP.Controllers
         [ActionName("Delete")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-           bookService.DeleteBookAsync(id);
+           await bookService.DeleteBookAsync(id);
 
             return RedirectToAction(nameof(Index));
         }

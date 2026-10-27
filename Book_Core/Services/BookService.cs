@@ -20,13 +20,19 @@ namespace Book_Core.Services
             this.context = context;
         }
 
-       public async Task  AddBookAsync(Book book)
+        public async Task AddBookAsync(Book book)
         {
-            context.Books.Add(book);
+            await context.Books.AddAsync(book);
             await context.SaveChangesAsync();
         }
 
-       public async Task DeleteBookAsync(int id)
+        public async Task UpdateBookAsync(Book book)
+        {
+            context.Books.Update(book);
+            await context.SaveChangesAsync();
+        }
+
+        public async Task DeleteBookAsync(int id)
         {
             var book = context.Books.Include(d => d.Purchases).FirstOrDefault(d => d.Id == id);
             if (book != null)
@@ -50,15 +56,11 @@ namespace Book_Core.Services
 
         public async Task<Book> GetBookDetailsAsync(int id)
         {
-            return await context.Books.Include(d => d.Author).
-     Include(d => d.Purchases).
-     ThenInclude(dp => dp.Book).
-     FirstOrDefaultAsync(d => d.Id == id);
+            return await context.Books.Include(b => b.Author)
+.Include(b => b.Purchases).ThenInclude(p => p.Client)
+.FirstOrDefaultAsync(d => d.Id == id);
         }
 
-        public async Task UpdateBookAsync(Book book)
-        {
-            await context.SaveChangesAsync();
-        }
+       
     }
 }

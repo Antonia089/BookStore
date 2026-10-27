@@ -23,5 +23,6 @@ namespace BookStore_Data.Entities
         public DateTime CreatedOn { get; set; }
         public bool IsDeleted { get; set; }
         public ICollection<Book> Books { get; set; }
+        public string FullName => $"{FirstName} {LastName}";
     }
 }

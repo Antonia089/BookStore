@@ -50,7 +50,9 @@ namespace BookStore_ASP.Controllers
                 LastName = client.LastName,
                 Email = client.Email,
                 PhoneNumber = client.PhoneNumber,
-                BookNames = string.Join(", ", client.Purchases.Select(dp => dp.Book.Title))
+                BookNames = string.Join(", ", client.Purchases?
+      .Where(dp => dp.Book != null)
+      .Select(dp => dp.Book.Title) ?? new List<string>())
             };
             return View(model);
         }
