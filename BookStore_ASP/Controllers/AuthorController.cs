@@ -1,4 +1,6 @@
-﻿using BookStore_ASP.Models;
+﻿using Book_Core.Interfaces;
+using Book_Core.Services;
+using BookStore_ASP.Models;
 using BookStore_ASP.ViewModel.Author;
 using BookStore_Data;
 using Microsoft.AspNetCore.Mvc;
@@ -8,18 +10,16 @@ namespace BookStore_ASP.Controllers
 {
     public class AuthorController : Controller
     {
-        public readonly BookStoreDataDbContext context;
+        private readonly IAuthorService service;
 
-        public AuthorController(BookStoreDataDbContext context)
+        public AuthorController(IAuthorService service)
         {
-            this.context = context;
+            this.service = service;
         }
 
         public async Task<IActionResult> Index()
         {
-            var authours = await context.Authors
-                .Where(h => !h.IsDeleted)
-                .ToListAsync();
+            var authours = await service.GetAllAuthorsAsync();
 
             var model = new List<IndexAuthorViewModel>();
 
@@ -37,7 +37,7 @@ namespace BookStore_ASP.Controllers
         }
         public async Task<IActionResult> Details(int id)
         {
-            var author = await context.Authors.FindAsync(id);
+            var author = await service.GetAuthorByIdAsync(id);
 
             if (author == null)
             {
@@ -73,8 +73,7 @@ namespace BookStore_ASP.Controllers
                     IsDeleted = false
                 };
 
-                context.Authors.Add(author);
-                await context.SaveChangesAsync();
+               service.AddAuthorAsync(author);
 
                 return RedirectToAction(nameof(Index));
             }
@@ -84,7 +83,7 @@ namespace BookStore_ASP.Controllers
 
         public async Task<IActionResult> Edit(int id)
         {
-            var a = await context.Authors.FindAsync(id);
+            var a = await service.GetAuthorByIdAsync(id);
 
             if (a == null)
             {
@@ -112,7 +111,7 @@ namespace BookStore_ASP.Controllers
 
             if (ModelState.IsValid)
             {
-                var au = await context.Authors.FindAsync(id);
+                var au = await service.GetAuthorByIdAsync(id);
 
                 if (au == null)
                 {
@@ -123,7 +122,7 @@ namespace BookStore_ASP.Controllers
                 au.LastName = model.LastName;
                 au.Country = model.Country;
 
-                await context.SaveChangesAsync();
+               service.UpdateAuthorAsync(au);
 
                 return RedirectToAction(nameof(Index));
             }
@@ -133,7 +132,7 @@ namespace BookStore_ASP.Controllers
 
         public async Task<IActionResult> Delete(int id)
         {
-            var authors = await context.Authors.FindAsync(id);
+            var authors = await service.GetAuthorByIdAsync(id);
 
             if (authors == null)
             {
@@ -154,15 +153,9 @@ namespace BookStore_ASP.Controllers
         [ActionName("Delete")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var au = await context.Authors.FindAsync(id);
-
-            if (au != null)
-            {
-                au.IsDeleted = true;
-
-                await context.SaveChangesAsync();
-            }
-
+           
+                await service.DeleteAuthorAsync(id);
+            
             return RedirectToAction(nameof(Index));
         }
     }

@@ -1,4 +1,5 @@
-﻿using BookStore_ASP.ViewModel.Client;
+﻿using Book_Core.Interfaces;
+using BookStore_ASP.ViewModel.Client;
 using BookStore_Data;
 using BookStore_Data.Entities;
 using Microsoft.AspNetCore.Mvc;
@@ -9,16 +10,18 @@ namespace BookStore_ASP.Controllers
 {
     public class ClientController : Controller
     {
-        private readonly BookStoreDataDbContext context;
+        private readonly IClientService clientService;
+        private readonly IBookService bookService;
 
-        public ClientController(BookStoreDataDbContext context)
+        public ClientController(IClientService patientService, IBookService doctorService)
         {
-            this.context = context;
+            this.clientService = patientService;
+            this.bookService = doctorService;
         }
 
         public async Task<IActionResult> Index()
         {
-            var clients = await context.Clients.Include(p => p.Purchases).ThenInclude(dp => dp.Book).ToListAsync();
+            var clients = await clientService.GetAllClientsAsync();
             var model = new List<IndexClientViewModel>();
             foreach (var c in clients)
             {
@@ -35,7 +38,7 @@ namespace BookStore_ASP.Controllers
 
         public async Task<IActionResult> Details(int id)
         {
-            var client = await context.Clients.Include(p => p.Purchases).ThenInclude(dp => dp.Book).FirstOrDefaultAsync(p => p.Id == id);
+            var client = await clientService.GetClientByIdAsync(id);
             if (client == null)
             {
                 return NotFound();
@@ -54,13 +57,8 @@ namespace BookStore_ASP.Controllers
 
         private async Task LoadBooks(List<int> selectBooks = null)
         {
-            var b = await context.Books
-                .Select(d => new
-                {
-                    d.Id,
-                    d.Title,
-                })
-                .ToListAsync();
+            var b=await bookService.GetAllBooksAsync();
+         
             ViewBag.Books = new MultiSelectList(
                 b,
                 "Id",
@@ -111,8 +109,7 @@ namespace BookStore_ASP.Controllers
                 });
             }
 
-            context.Clients.Add(client);
-            await context.SaveChangesAsync();
+           clientService.AddClientAsync(client);
 
             return RedirectToAction(nameof(Index));
         }
@@ -121,7 +118,7 @@ namespace BookStore_ASP.Controllers
     
         public async Task<IActionResult> Edit(int id)
         {
-            var client = await context.Clients.Include(p => p.Purchases).ThenInclude(p=>p.Book).FirstOrDefaultAsync(p => p.Id == id);
+            var client = await clientService.GetClientByIdAsync(id);
             if (client == null)
             {
                 return NotFound();
@@ -147,9 +144,7 @@ namespace BookStore_ASP.Controllers
             }
             if (ModelState.IsValid)
             {
-                var client = await context.Clients
-                    .Include(p => p.Purchases)
-                    .FirstOrDefaultAsync(p => p.Id == id);
+                var client = await clientService.GetClientByIdAsync(id);
                 if (client == null)
                 { return NotFound(); }
                 client.FirstName = model.FirstName;
@@ -157,18 +152,18 @@ namespace BookStore_ASP.Controllers
                 client.Email = model.Email;
                 client.PhoneNumber = model.PhoneNumber;
                 client.Purchases.Clear();
-                foreach (var bookid in model.BookIds)
+                foreach (var bookid in model.BookIds.Distinct())
                 {
                     client.Purchases.Add(new Purchases
                     {
                         BookId = bookid,
                         ClientId = client.Id,
-                        PurchaseDate = DateTime.Now
+                        PurchaseDate = DateTime.Now  // Use the value from the view model
                     }); 
                    
 
                 }
-                await context.SaveChangesAsync();
+               await clientService.UpdateClientAsync(client,model.BookIds);
                 return RedirectToAction(nameof(Index));
             }
             await LoadBooks(model.BookIds);
@@ -176,7 +171,7 @@ namespace BookStore_ASP.Controllers
         }
         public async Task<IActionResult> Delete(int id)
         {
-            var c = await context.Clients.FindAsync(id);
+            var c = await clientService.GetClientByIdAsync(id);
             if (c == null)
             {
                 return NotFound();
@@ -192,12 +187,7 @@ namespace BookStore_ASP.Controllers
         [HttpPost, ActionName("Delete")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var c = await context.Clients.FindAsync(id);
-            if (c != null)
-            {
-                context.Clients.Remove(c);
-                await context.SaveChangesAsync();
-            }
+            await clientService.DeleteClientAsync(id);
 
             return RedirectToAction(nameof(Index));
         }

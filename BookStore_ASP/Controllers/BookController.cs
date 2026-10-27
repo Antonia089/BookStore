@@ -1,4 +1,5 @@
-﻿using BookStore_ASP.ViewModel.Book;
+﻿using Book_Core.Interfaces;
+using BookStore_ASP.ViewModel.Book;
 using BookStore_Data;
 using BookStore_Data.Entities;
 using Microsoft.AspNetCore.Mvc;
@@ -10,18 +11,18 @@ namespace BookStore_ASP.Controllers
 {
     public class BookController : Controller
     {
-        private readonly BookStoreDataDbContext context;
+        private readonly IBookService bookService;
+        private readonly IAuthorService  authorService;
 
-        public BookController(BookStoreDataDbContext context)
+        public BookController(IBookService b, IAuthorService h)
         {
-            this.context = context;
+            this.bookService = b;
+            this.authorService = h;
         }
 
         public async Task<IActionResult> Index()
         {
-            var b = await context.Books
-                .Include(d => d.Author)
-                .ToListAsync();
+            var b = await bookService.GetAllBooksAsync();
 
             var model = new List<IndexBookViewModel>();
 
@@ -41,11 +42,7 @@ namespace BookStore_ASP.Controllers
 
         public async Task<IActionResult> Details(int id)
         {
-            var b = await context.Books
-                .Include(d => d.Author)
-                .Include(d => d.Purchases)
-                .ThenInclude(p=>p.Client)
-                .FirstOrDefaultAsync(d => d.Id == id);
+            var b = await bookService.GetBookByIdAsync(id);
 
             if (b == null)
             {
@@ -65,29 +62,24 @@ namespace BookStore_ASP.Controllers
 
             return View(model);
         }
-
+        [HttpGet]
         public async Task<IActionResult> Create()
         {
+            var model = new CreateBookViewModel();
+            var author=await authorService.GetAllAuthorsAsync();
             ViewBag.Authors = new SelectList(
-         await context.Authors
-             .Where(a => !a.IsDeleted)
-             .Select(a => new
-             {
-                 Id = a.Id,
-                 FullName = a.FirstName + " " + a.LastName
-             })
-             .ToListAsync(),
+        author,
          "Id",
          "FullName");
 
-            return View();
+            return View(model);
         }
 
         [HttpPost]
         public async Task<IActionResult> Create(CreateBookViewModel model)
         {
             if (ModelState.IsValid)
-            {
+            { 
                 var b = new Book
                 {
                     Title = model.Title,
@@ -98,22 +90,16 @@ namespace BookStore_ASP.Controllers
                     AuthorId = model.AuthorId
                 };
 
-                context.Books.Add(b);
-                await context.SaveChangesAsync();
+              await bookService.AddBookAsync(b);
 
                 return RedirectToAction(nameof(Index));
             }
+
+            var authorlist = await authorService.GetAllAuthorsAsync();
             ViewBag.Authors = new SelectList(
-            await context.Authors
-                .Where(a => !a.IsDeleted)
-                .Select(a => new
-                {
-                    Id = a.Id,
-                    FullName = a.FirstName + " " + a.LastName
-                })
-                .ToListAsync(),
-            "Id",
-            "FullName");
+        authorlist,
+         "Id",
+         "FullName").ToList();
 
 
             return View(model);
@@ -122,7 +108,7 @@ namespace BookStore_ASP.Controllers
        
         public async Task<IActionResult> Edit(int id)
         {
-            var book = await context.Books.FindAsync(id);
+            var book = await bookService.GetBookByIdAsync(id);
 
             if (book == null)
             {
@@ -163,7 +149,7 @@ namespace BookStore_ASP.Controllers
                 return View(model);
             }
 
-            var book = await context.Books.FindAsync(id);
+            var book = await bookService.GetBookByIdAsync(id);
 
             if (book == null)
             {
@@ -177,29 +163,25 @@ namespace BookStore_ASP.Controllers
             book.YearOfPublication = model.YearOfPublication;
             book.AuthorId = model.AuthorId;
 
-            await context.SaveChangesAsync();
+            await bookService.UpdateBookAsync(book);
 
             return RedirectToAction(nameof(Index));
         }
 
         private async Task LoadAuthors()
         {
+            var a = await authorService.GetAllAuthorsAsync();
             ViewBag.Authors = new SelectList(
-                await context.Authors
-                    .Where(a => !a.IsDeleted)
-                    .Select(a => new
-                    {
-                        Id = a.Id,
-                        FullName = a.FirstName + " " + a.LastName
-                    })
-                    .ToListAsync(),
-                "Id",
-                "FullName");
+        a,
+         "Id",
+         "FullName");
+
+      
         }
 
         public async Task<IActionResult> Delete(int id)
         {
-            var b = await context.Books.FindAsync(id);
+            var b = await bookService.GetBookByIdAsync(id);
 
             if (b == null)
             {
@@ -219,13 +201,7 @@ namespace BookStore_ASP.Controllers
         [ActionName("Delete")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var book = await context.Books.FindAsync(id);
-
-            if (book != null)
-            {
-                context.Books.Remove(book);
-                await context.SaveChangesAsync();
-            }
+           bookService.DeleteBookAsync(id);
 
             return RedirectToAction(nameof(Index));
         }

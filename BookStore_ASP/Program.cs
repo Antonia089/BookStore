@@ -1,3 +1,5 @@
+using Book_Core.Interfaces;
+using Book_Core.Services;
 using BookStore_Data;
 using Microsoft.EntityFrameworkCore;
 
@@ -14,7 +16,9 @@ namespace BookStore_ASP
             builder.Services.AddDbContext<BookStoreDataDbContext>(options =>
             options.UseSqlServer(
             builder.Configuration.GetConnectionString("DefaultConnection")));
-
+            builder.Services.AddScoped<IClientService, ClientService>();
+            builder.Services.AddScoped<IBookService, BookService>();
+            builder.Services.AddScoped<IAuthorService, AuthorService>();
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
@@ -24,6 +28,8 @@ namespace BookStore_ASP
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
+           
+
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
@@ -34,7 +40,7 @@ namespace BookStore_ASP
 
             app.MapControllerRoute(
                 name: "default",
-                pattern: "{controller=Client}/{action=Index}/{id?}");
+                pattern: "{controller=Book}/{action=Index}/{id?}");
 
             app.Run();
         }
