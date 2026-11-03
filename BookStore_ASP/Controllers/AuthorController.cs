@@ -122,7 +122,7 @@ namespace BookStore_ASP.Controllers
                 au.LastName = model.LastName;
                 au.Country = model.Country;
 
-               service.UpdateAuthorAsync(au);
+               await service.UpdateAuthorAsync(au);
 
                 return RedirectToAction(nameof(Index));
             }

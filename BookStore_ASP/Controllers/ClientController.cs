@@ -38,7 +38,7 @@ namespace BookStore_ASP.Controllers
 
         public async Task<IActionResult> Details(int id)
         {
-            var client = await clientService.GetClientByIdAsync(id);
+            var client = await clientService.GetClientWithBookAsync(id);
             if (client == null)
             {
                 return NotFound();
@@ -51,8 +51,8 @@ namespace BookStore_ASP.Controllers
                 Email = client.Email,
                 PhoneNumber = client.PhoneNumber,
                 BookNames = string.Join(", ", client.Purchases?
-      .Where(dp => dp.Book != null)
-      .Select(dp => dp.Book.Title) ?? new List<string>())
+                    .Where(dp => dp.Book != null)
+                    .Select(dp => dp.Book.Title) ?? new List<string>())
             };
             return View(model);
         }
@@ -162,7 +162,7 @@ namespace BookStore_ASP.Controllers
                         ClientId = client.Id,
                         PurchaseDate = DateTime.Now  // Use the value from the view model
                     }); 
-                   
+                  
 
                 }
                await clientService.UpdateClientAsync(client,model.BookIds);

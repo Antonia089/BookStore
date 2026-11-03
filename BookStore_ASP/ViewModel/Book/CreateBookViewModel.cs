@@ -13,7 +13,7 @@ namespace BookStore_ASP.ViewModel.Book
         [MaxLength(100, ErrorMessage = "The max length is 100")]
         public string Genres { get; set; }
         [Required(ErrorMessage = "The year of publishing is required")]
-        [Range(1900, 2026,ErrorMessage ="The year of publishing has to be in range 19000 to 2026")]
+        [Range(1900, 2026,ErrorMessage ="The year of publishing has to be in range 1900 to 2026")]
         public int YearOfPublication { get; set; }
         [Required(ErrorMessage = "The price is required")]
         public decimal Price { get; set; }
