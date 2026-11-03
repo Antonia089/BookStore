@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BookStore_Data.Migrations
 {
     [DbContext(typeof(BookStoreDataDbContext))]
-    [Migration("20261014070743_createdb")]
+    [Migration("20261103082701_createdb")]
     partial class createdb
     {
         /// <inheritdoc />
@@ -57,6 +57,26 @@ namespace BookStore_Data.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Authors");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Country = "UK",
+                            CreatedOn = new DateTime(2026, 11, 3, 10, 27, 1, 105, DateTimeKind.Local).AddTicks(9190),
+                            FirstName = "Zadie",
+                            IsDeleted = false,
+                            LastName = "Smith"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Country = "UK",
+                            CreatedOn = new DateTime(2026, 11, 3, 10, 27, 1, 105, DateTimeKind.Local).AddTicks(9234),
+                            FirstName = "Ian",
+                            IsDeleted = false,
+                            LastName = "McEwan"
+                        });
                 });
 
             modelBuilder.Entity("BookStore_Data.Entities.Book", b =>
@@ -94,6 +114,28 @@ namespace BookStore_Data.Migrations
                     b.HasIndex("AuthorId");
 
                     b.ToTable("Books");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            AuthorId = 1,
+                            Genres = "Fiction",
+                            NumberOfPages = 448,
+                            Price = 10m,
+                            Title = "White Teeth",
+                            YearOfPublication = 2000
+                        },
+                        new
+                        {
+                            Id = 2,
+                            AuthorId = 2,
+                            Genres = "Fiction",
+                            NumberOfPages = 331,
+                            Price = 10m,
+                            Title = "Atonement",
+                            YearOfPublication = 2001
+                        });
                 });
 
             modelBuilder.Entity("BookStore_Data.Entities.Client", b =>
@@ -126,6 +168,24 @@ namespace BookStore_Data.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Clients");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Email = "OliviaS@gmail.com",
+                            FirstName = "Olivia",
+                            LastName = "Smith",
+                            PhoneNumber = "1234567890"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Email = "Liam123@gmail.com",
+                            FirstName = "Liam",
+                            LastName = "Johnson",
+                            PhoneNumber = "0987654321"
+                        });
                 });
 
             modelBuilder.Entity("BookStore_Data.Entities.Purchases", b =>
@@ -144,6 +204,20 @@ namespace BookStore_Data.Migrations
                     b.HasIndex("BookId");
 
                     b.ToTable("Purchases");
+
+                    b.HasData(
+                        new
+                        {
+                            ClientId = 1,
+                            BookId = 1,
+                            PurchaseDate = new DateTime(2026, 11, 3, 10, 27, 1, 105, DateTimeKind.Local).AddTicks(9567)
+                        },
+                        new
+                        {
+                            ClientId = 2,
+                            BookId = 2,
+                            PurchaseDate = new DateTime(2026, 11, 3, 10, 27, 1, 105, DateTimeKind.Local).AddTicks(9570)
+                        });
                 });
 
             modelBuilder.Entity("BookStore_Data.Entities.Book", b =>

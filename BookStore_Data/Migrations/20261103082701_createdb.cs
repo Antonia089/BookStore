@@ -3,6 +3,8 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
+#pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
+
 namespace BookStore_Data.Migrations
 {
     /// <inheritdoc />
@@ -91,6 +93,42 @@ namespace BookStore_Data.Migrations
                         principalTable: "Clients",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.InsertData(
+                table: "Authors",
+                columns: new[] { "Id", "Country", "CreatedOn", "FirstName", "IsDeleted", "LastName" },
+                values: new object[,]
+                {
+                    { 1, "UK", new DateTime(2026, 11, 3, 10, 27, 1, 105, DateTimeKind.Local).AddTicks(9190), "Zadie", false, "Smith" },
+                    { 2, "UK", new DateTime(2026, 11, 3, 10, 27, 1, 105, DateTimeKind.Local).AddTicks(9234), "Ian", false, "McEwan" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "Clients",
+                columns: new[] { "Id", "Email", "FirstName", "LastName", "PhoneNumber" },
+                values: new object[,]
+                {
+                    { 1, "OliviaS@gmail.com", "Olivia", "Smith", "1234567890" },
+                    { 2, "Liam123@gmail.com", "Liam", "Johnson", "0987654321" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "Books",
+                columns: new[] { "Id", "AuthorId", "Genres", "NumberOfPages", "Price", "Title", "YearOfPublication" },
+                values: new object[,]
+                {
+                    { 1, 1, "Fiction", 448, 10m, "White Teeth", 2000 },
+                    { 2, 2, "Fiction", 331, 10m, "Atonement", 2001 }
+                });
+
+            migrationBuilder.InsertData(
+                table: "Purchases",
+                columns: new[] { "BookId", "ClientId", "PurchaseDate" },
+                values: new object[,]
+                {
+                    { 1, 1, new DateTime(2026, 11, 3, 10, 27, 1, 105, DateTimeKind.Local).AddTicks(9567) },
+                    { 2, 2, new DateTime(2026, 11, 3, 10, 27, 1, 105, DateTimeKind.Local).AddTicks(9570) }
                 });
 
             migrationBuilder.CreateIndex(

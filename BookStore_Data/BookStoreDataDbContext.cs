@@ -1,4 +1,5 @@
-﻿using BookStore_Data.Entities;
+﻿using BookStore_Data.Configuration;
+using BookStore_Data.Entities;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -30,6 +31,10 @@ namespace BookStore_Data
                 .HasOne(p => p.Book)
                 .WithMany(b => b.Purchases)
                 .HasForeignKey(p => p.BookId);
+            modelBuilder.ApplyConfiguration(new AuthorConfiguration());
+            modelBuilder.ApplyConfiguration(new BookConfiguration());
+            modelBuilder.ApplyConfiguration(new ClientConfiguration());
+            modelBuilder.ApplyConfiguration(new PurchaseConfiguration());
         }
     }
 }
