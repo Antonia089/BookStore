@@ -10,7 +10,7 @@ namespace Book_Core.Interfaces
 {
     public interface IBookService
     {
-        Task<List<Book>> GetAllBooksAsync();
+        Task<List<Book>> GetAllBooksAsync(string? search = null, decimal? minBeds = null, string? sortOrder = null);
         Task<Book> GetBookByIdAsync(int id);//Edit,Delete
         Task<Book> GetBookDetailsAsync(int id);//Details-for Patient
         Task AddBookAsync(Book book);

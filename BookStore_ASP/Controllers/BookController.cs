@@ -4,6 +4,7 @@ using BookStore_Data;
 using BookStore_Data.Entities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using System.Numerics;
 
@@ -20,9 +21,9 @@ namespace BookStore_ASP.Controllers
             this.authorService = h;
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string? search, decimal? minBeds, string? sortOrder)
         {
-            var b = await bookService.GetAllBooksAsync();
+            var b = await bookService.GetAllBooksAsync(search,minBeds,sortOrder);
 
             var model = new List<IndexBookViewModel>();
 
@@ -36,6 +37,9 @@ namespace BookStore_ASP.Controllers
                      AuthorName = a.Author.FullName
                 });
             }
+            ViewBag.Search = search;
+            ViewBag.MinBeds = minBeds;
+            ViewBag.SortOrder = sortOrder;
 
             return View(model);
         }
