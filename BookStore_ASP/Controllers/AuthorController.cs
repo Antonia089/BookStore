@@ -29,11 +29,58 @@ namespace BookStore_ASP.Controllers
                 {
                     Id = a.Id,
                     FirstName = a.FirstName,
-                    LastName = a.LastName
+                    LastName = a.LastName,
+                    Country = a.Country
                 });
             }
 
             return View(model);
+        }
+        [HttpGet]
+        public async Task<IActionResult> GetFilteredAuthors(string? search, string? specialty, string? sortOrder)
+        {
+            var authors = await service.GetAllAuthorsAsync();
+
+            // Filter by name
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                authors = authors.Where(a => 
+                    a.FirstName.Contains(search, StringComparison.OrdinalIgnoreCase) ||
+                    a.LastName.Contains(search, StringComparison.OrdinalIgnoreCase)
+                ).ToList();
+            }
+
+            // Filter by country
+            if (!string.IsNullOrWhiteSpace(specialty))
+            {
+                authors = authors.Where(a => 
+                    a.Country.Contains(specialty, StringComparison.OrdinalIgnoreCase)
+                ).ToList();
+            }
+
+            // Sort - ensure proper sorting
+            if (sortOrder == "name_desc")
+            {
+                authors = authors.OrderByDescending(a => a.FirstName).ThenByDescending(a => a.LastName).ToList();
+            }
+            else if (sortOrder == "country_asc")
+            {
+                authors = authors.OrderBy(a => a.Country).ThenBy(a => a.FirstName).ToList();
+            }
+            else // name_asc is default
+            {
+                authors = authors.OrderBy(a => a.FirstName).ThenBy(a => a.LastName).ToList();
+            }
+
+            var model = authors.Select(a => new IndexAuthorViewModel
+            {
+                Id = a.Id,
+                FirstName = a.FirstName,
+                LastName = a.LastName,
+                Country = a.Country
+            }).ToList();
+
+            return Json(model);
         }
         public async Task<IActionResult> Details(int id)
         {

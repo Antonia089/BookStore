@@ -1,6 +1,7 @@
 ﻿using Book_Core.Interfaces;
 using BookStore_Data;
 using BookStore_Data.Entities;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -35,9 +36,34 @@ namespace Book_Core.Services
             }
         }
 
-        public async Task<List<Author>> GetAllAuthorsAsync()
+        public async Task<List<Author>> GetAllAuthorsAsync(string? search = null, string? speciality = null, string? SortOrder = null)
         {
-            return await context.Authors.Where(h => !h.IsDeleted).ToListAsync();
+            var query = context.Authors.Include(d => d.Books).AsQueryable();
+            if (!string.IsNullOrEmpty(search))
+            {
+                query = query.Where(d => d.FirstName.Contains(search) || d.LastName.Contains(search));
+            }
+            if (!string.IsNullOrEmpty(speciality))
+            {
+                query = query.Where(d => d.Country == speciality);
+            }
+
+            switch (SortOrder)
+            {
+                case "name_asc":
+                    query = query.OrderByDescending(d => d.FirstName).ThenBy(d => d.LastName);
+                    break;
+                case "name_desc":
+                    query = query.OrderByDescending(d => d.FirstName).ThenByDescending(d => d.LastName);
+                    break;
+                case "specialty":
+                    query = query.OrderByDescending(d => d.Country).ThenBy(d => d.FirstName);
+                    break;
+                default:
+                    query = query.OrderBy(d => d.FirstName).ThenBy(d => d.LastName);
+                    break;
+            }
+            return await query.ToListAsync();
         }
 
         public async Task<Author> GetAuthorByIdAsync(int id)
