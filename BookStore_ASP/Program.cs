@@ -40,7 +40,7 @@ namespace BookStore_ASP
 
             app.MapControllerRoute(
                 name: "default",
-                pattern: "{controller=Client}/{action=Index}/{id?}");
+                pattern: "{controller=Author}/{action=Index}/{id?}");
 
             app.Run();
         }

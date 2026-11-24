@@ -3,6 +3,7 @@ using Book_Core.Services;
 using BookStore_ASP.Models;
 using BookStore_ASP.ViewModel.Author;
 using BookStore_Data;
+using BookStore_Data.Entities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -97,7 +98,8 @@ namespace BookStore_ASP.Controllers
                 FirstName = author.FirstName,
                 LastName = author.LastName,
                 Country = author.Country,
-                CreatedOn = author.CreatedOn
+                CreatedOn = author.CreatedOn,
+                Books = author.Books?.ToList() ?? new List<Book>()
             };
 
             return View(model);

@@ -10,5 +10,6 @@ namespace BookStore_ASP.ViewModel.Author
         public string Country { get; set; }
         [Display(Name = "Създадена на")]
         public DateTime CreatedOn { get; set; }
+        public List<BookStore_Data.Entities.Book> Books { get; set; } = new List<BookStore_Data.Entities.Book>();
     }
 }

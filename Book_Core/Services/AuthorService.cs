@@ -76,7 +76,9 @@ namespace Book_Core.Services
 
         public async Task<Author> GetAuthorByIdAsync(int id)
         {
-            return await context.Authors.FindAsync(id);
+            return await context.Authors
+                .Include(a => a.Books)
+                .FirstOrDefaultAsync(a => a.Id == id);
         }
 
         public async Task UpdateAuthorAsync(Author a)

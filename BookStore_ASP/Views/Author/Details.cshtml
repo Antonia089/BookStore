@@ -1,6 +1,5 @@
 ﻿@model BookStore_ASP.ViewModel.Author.DetailsAuthorViewModel
 
-
 @{
     ViewData["Title"] = "Details";
 }
@@ -33,10 +32,6 @@
             @Html.DisplayFor(model => model.Country)
         </dd>
 
-        
-
-        
-       
         <dt>
             @Html.DisplayNameFor(model => model.CreatedOn)
         </dt>
@@ -44,6 +39,22 @@
             @Html.DisplayFor(model => model.CreatedOn)
         </dd>
 
+        <dt>Books</dt>
+        <dd>
+            @if (Model.Books != null && Model.Books.Any())
+            {
+                <ul>
+                    @foreach (var book in Model.Books)
+                    {
+                        <li>@book.Title</li>
+                    }
+                </ul>
+            }
+            else
+            {
+                <p>No books found.</p>
+            }
+        </dd>
     </dl>
 </div>
 
