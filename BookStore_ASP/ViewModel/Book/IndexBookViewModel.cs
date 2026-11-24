@@ -9,5 +9,6 @@ namespace BookStore_ASP.ViewModel.Book
         public string Title { get; set; }
         public string Genres { get; set; }
         public string AuthorName { get; set; }
+        public decimal Price { get; set; }
     }
 }

@@ -34,7 +34,8 @@ namespace BookStore_ASP.Controllers
                     Id = a.Id,
                    Title = a.Title,
                      Genres = a.Genres,
-                     AuthorName = a.Author.FullName
+                     Price = a.Price,
+                    AuthorName = a.Author.FullName
                 });
             }
             ViewBag.Search = search;

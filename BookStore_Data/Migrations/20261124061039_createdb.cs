@@ -56,18 +56,21 @@ namespace BookStore_Data.Migrations
                     Genres = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     YearOfPublication = table.Column<int>(type: "int", nullable: false),
                     Price = table.Column<decimal>(type: "decimal(8,2)", nullable: false),
-                    NumberOfPages = table.Column<int>(type: "int", nullable: false),
+                    NumberOfPages = table.Column<int>(type: "int", nullable: false, defaultValue: 2),
                     AuthorId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Books", x => x.Id);
+                    table.CheckConstraint("CK_Book_NumberOfPages", "[NumberOfPages] >= 2 AND [NumberOfPages] <= 1000");
+                    table.CheckConstraint("CK_Book_Price", "[Price] >= 1 AND [Price] <= 1000");
+                    table.CheckConstraint("CK_Book_YearOfPublication", "[YearOfPublication] >= 1900 AND [YearOfPublication] <= 2026");
                     table.ForeignKey(
                         name: "FK_Books_Authors_AuthorId",
                         column: x => x.AuthorId,
                         principalTable: "Authors",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -80,7 +83,7 @@ namespace BookStore_Data.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Purchases", x => new { x.ClientId, x.BookId });
+                    table.PrimaryKey("PK_Purchases", x => new { x.BookId, x.ClientId });
                     table.ForeignKey(
                         name: "FK_Purchases_Books_BookId",
                         column: x => x.BookId,
@@ -100,8 +103,8 @@ namespace BookStore_Data.Migrations
                 columns: new[] { "Id", "Country", "CreatedOn", "FirstName", "IsDeleted", "LastName" },
                 values: new object[,]
                 {
-                    { 1, "UK", new DateTime(2026, 11, 3, 10, 27, 1, 105, DateTimeKind.Local).AddTicks(9190), "Zadie", false, "Smith" },
-                    { 2, "UK", new DateTime(2026, 11, 3, 10, 27, 1, 105, DateTimeKind.Local).AddTicks(9234), "Ian", false, "McEwan" }
+                    { 1, "UK", new DateTime(2026, 11, 24, 8, 10, 38, 956, DateTimeKind.Local).AddTicks(959), "Zadie", false, "Smith" },
+                    { 2, "UK", new DateTime(2026, 11, 24, 8, 10, 38, 956, DateTimeKind.Local).AddTicks(1003), "Ian", false, "McEwan" }
                 });
 
             migrationBuilder.InsertData(
@@ -127,8 +130,8 @@ namespace BookStore_Data.Migrations
                 columns: new[] { "BookId", "ClientId", "PurchaseDate" },
                 values: new object[,]
                 {
-                    { 1, 1, new DateTime(2026, 11, 3, 10, 27, 1, 105, DateTimeKind.Local).AddTicks(9567) },
-                    { 2, 2, new DateTime(2026, 11, 3, 10, 27, 1, 105, DateTimeKind.Local).AddTicks(9570) }
+                    { 1, 1, new DateTime(2026, 11, 24, 8, 10, 38, 956, DateTimeKind.Local).AddTicks(4883) },
+                    { 2, 2, new DateTime(2026, 11, 24, 8, 10, 38, 956, DateTimeKind.Local).AddTicks(4895) }
                 });
 
             migrationBuilder.CreateIndex(
@@ -137,9 +140,9 @@ namespace BookStore_Data.Migrations
                 column: "AuthorId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Purchases_BookId",
+                name: "IX_Purchases_ClientId",
                 table: "Purchases",
-                column: "BookId");
+                column: "ClientId");
         }
 
         /// <inheritdoc />

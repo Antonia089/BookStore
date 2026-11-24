@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BookStore_Data.Migrations
 {
     [DbContext(typeof(BookStoreDataDbContext))]
-    [Migration("20261103082701_createdb")]
+    [Migration("20261124061039_createdb")]
     partial class createdb
     {
         /// <inheritdoc />
@@ -63,7 +63,7 @@ namespace BookStore_Data.Migrations
                         {
                             Id = 1,
                             Country = "UK",
-                            CreatedOn = new DateTime(2026, 11, 3, 10, 27, 1, 105, DateTimeKind.Local).AddTicks(9190),
+                            CreatedOn = new DateTime(2026, 11, 24, 8, 10, 38, 956, DateTimeKind.Local).AddTicks(959),
                             FirstName = "Zadie",
                             IsDeleted = false,
                             LastName = "Smith"
@@ -72,7 +72,7 @@ namespace BookStore_Data.Migrations
                         {
                             Id = 2,
                             Country = "UK",
-                            CreatedOn = new DateTime(2026, 11, 3, 10, 27, 1, 105, DateTimeKind.Local).AddTicks(9234),
+                            CreatedOn = new DateTime(2026, 11, 24, 8, 10, 38, 956, DateTimeKind.Local).AddTicks(1003),
                             FirstName = "Ian",
                             IsDeleted = false,
                             LastName = "McEwan"
@@ -96,7 +96,9 @@ namespace BookStore_Data.Migrations
                         .HasColumnType("nvarchar(100)");
 
                     b.Property<int>("NumberOfPages")
-                        .HasColumnType("int");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(2);
 
                     b.Property<decimal>("Price")
                         .HasColumnType("decimal(8,2)");
@@ -113,7 +115,14 @@ namespace BookStore_Data.Migrations
 
                     b.HasIndex("AuthorId");
 
-                    b.ToTable("Books");
+                    b.ToTable("Books", t =>
+                        {
+                            t.HasCheckConstraint("CK_Book_NumberOfPages", "[NumberOfPages] >= 2 AND [NumberOfPages] <= 1000");
+
+                            t.HasCheckConstraint("CK_Book_Price", "[Price] >= 1 AND [Price] <= 1000");
+
+                            t.HasCheckConstraint("CK_Book_YearOfPublication", "[YearOfPublication] >= 1900 AND [YearOfPublication] <= 2026");
+                        });
 
                     b.HasData(
                         new
@@ -190,33 +199,33 @@ namespace BookStore_Data.Migrations
 
             modelBuilder.Entity("BookStore_Data.Entities.Purchases", b =>
                 {
-                    b.Property<int>("ClientId")
+                    b.Property<int>("BookId")
                         .HasColumnType("int");
 
-                    b.Property<int>("BookId")
+                    b.Property<int>("ClientId")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("PurchaseDate")
                         .HasColumnType("datetime");
 
-                    b.HasKey("ClientId", "BookId");
+                    b.HasKey("BookId", "ClientId");
 
-                    b.HasIndex("BookId");
+                    b.HasIndex("ClientId");
 
                     b.ToTable("Purchases");
 
                     b.HasData(
                         new
                         {
-                            ClientId = 1,
                             BookId = 1,
-                            PurchaseDate = new DateTime(2026, 11, 3, 10, 27, 1, 105, DateTimeKind.Local).AddTicks(9567)
+                            ClientId = 1,
+                            PurchaseDate = new DateTime(2026, 11, 24, 8, 10, 38, 956, DateTimeKind.Local).AddTicks(4883)
                         },
                         new
                         {
-                            ClientId = 2,
                             BookId = 2,
-                            PurchaseDate = new DateTime(2026, 11, 3, 10, 27, 1, 105, DateTimeKind.Local).AddTicks(9570)
+                            ClientId = 2,
+                            PurchaseDate = new DateTime(2026, 11, 24, 8, 10, 38, 956, DateTimeKind.Local).AddTicks(4895)
                         });
                 });
 
@@ -225,7 +234,7 @@ namespace BookStore_Data.Migrations
                     b.HasOne("BookStore_Data.Entities.Author", "Author")
                         .WithMany("Books")
                         .HasForeignKey("AuthorId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Author");

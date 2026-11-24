@@ -196,14 +196,23 @@ namespace BookStore_ASP.Controllers
             return View(model);
         }
 
+
         [HttpPost]
         [ActionName("Delete")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-           
+            try
+            {
                 await service.DeleteAuthorAsync(id);
-            
-            return RedirectToAction(nameof(Index));
+                return RedirectToAction(nameof(Index));
+            }
+            catch (InvalidOperationException ex)
+            {
+
+                TempData["ErrorMessage"] = ex.Message;
+                return RedirectToAction(nameof(Index));
+            }
         }
     }
 }
+

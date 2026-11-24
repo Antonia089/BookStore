@@ -13,6 +13,15 @@ namespace BookStore_Data.Configuration
     {
         public void Configure(EntityTypeBuilder<Author> builder)
         {
+            builder.Property(a => a.FirstName)
+                .IsRequired()
+                .HasMaxLength(100);
+            builder.Property(a => a.LastName)
+                .IsRequired()
+                .HasMaxLength(100);
+            builder.Property(a => a.Country)
+                .IsRequired()
+                .HasMaxLength(100);
             builder.HasData
                  (
                 new Author

@@ -26,19 +26,27 @@ namespace Book_Core.Services
            return context.SaveChangesAsync();
         }
 
+       
+        
         public async Task DeleteAuthorAsync(int id)
         {
-            var author = await context.Authors.FindAsync(id);
-            if (author != null)
+            var а = await context.Authors.FindAsync(id);
+            if (а == null)
             {
-                author.IsDeleted = true;
-                await context.SaveChangesAsync();
+                return;
             }
+            bool HasBooks = await context.Books.AnyAsync(d => d.AuthorId == id);
+            if (HasBooks)
+            {
+                throw new InvalidOperationException("Cannot delete author with associated books.");
+            }
+            а.IsDeleted = true;
+            await context.SaveChangesAsync();
         }
 
         public async Task<List<Author>> GetAllAuthorsAsync(string? search = null, string? speciality = null, string? SortOrder = null)
         {
-            var query = context.Authors.Include(d => d.Books).AsQueryable();
+            var query = context.Authors.Include(d => d.Books).Where(a=>!a.IsDeleted).AsQueryable();
             if (!string.IsNullOrEmpty(search))
             {
                 query = query.Where(d => d.FirstName.Contains(search) || d.LastName.Contains(search));

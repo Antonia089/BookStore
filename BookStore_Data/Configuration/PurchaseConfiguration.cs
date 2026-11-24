@@ -13,7 +13,16 @@ namespace BookStore_Data.Configuration
     {
         public void Configure(EntityTypeBuilder<Purchases> builder)
         {
-           builder.HasData(
+            builder.HasKey(dp => new { dp.BookId, dp.ClientId });
+            builder.HasOne(dp => dp.Book)
+                .WithMany(d => d.Purchases)
+                .HasForeignKey(dp => dp.BookId)
+                .OnDelete(DeleteBehavior.Cascade);
+            builder.HasOne(dp => dp.Client)
+                .WithMany(p => p.Purchases)
+                .HasForeignKey(dp => dp.ClientId)
+                .OnDelete(DeleteBehavior.Cascade);
+            builder.HasData(
                 new Purchases
                 {
                     ClientId = 1,

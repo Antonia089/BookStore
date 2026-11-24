@@ -13,6 +13,17 @@ namespace BookStore_Data.Configuration
     {
         public void Configure(EntityTypeBuilder<Client> builder)
         {
+            builder.Property(c => c.FirstName)
+                .IsRequired()
+                .HasMaxLength(100);
+            builder.Property(c => c.LastName)
+                .IsRequired()
+                .HasMaxLength(100);
+            builder.Property(c => c.Email)
+                .IsRequired()
+                .HasMaxLength(100);
+            builder.Property(c => c.PhoneNumber)
+                .IsRequired();
             builder.HasData
                  (
                 new Client
